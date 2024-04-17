@@ -1,14 +1,14 @@
-import logging
 from random import uniform
 from socket import AF_INET, SHUT_RDWR, SOCK_STREAM, socket
-from threading import Event, Thread
 from time import sleep
+from typing import TYPE_CHECKING
 
-logger = logging.getLogger("threading_client")
+if TYPE_CHECKING:
+    from logging import Logger
+    from threading import Event
 
 
-
-def work(index: int, event: "Event") -> None:
+def work(index: int, event: "Event", logger: "Logger") -> None:
     sleeping_time = round(uniform(1, 2), 2)  # noqa: S311
     client = socket(AF_INET, SOCK_STREAM)
     # with socket(AF_INET, SOCK_STREAM) as client:
@@ -25,17 +25,3 @@ def work(index: int, event: "Event") -> None:
     client.shutdown(SHUT_RDWR)
     client.close()
     logger.critical("%d CLOSED", index)
-
-
-stop = Event()
-
-for index in range(3):
-    thread = Thread(target=work, args=(index, stop))
-    thread.start()
-sleep(3)
-
-logger.critical(">>> setting stop")
-stop.set()
-sleep(3)
-
-logger.critical("end")

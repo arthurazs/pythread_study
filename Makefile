@@ -11,10 +11,10 @@ lint:
 	mypy .
 	ruff check .
 
-default: threading
+default: thread
 
-threading:
-	python default.py
+thread:
+	python thread.py
 
 pool:
 	python pool.py
