@@ -3,3 +3,10 @@
 
 # pycharm
 .idea
+
+# setuptools
+build
+*.egg-info
+
+# dev
+.*_cache

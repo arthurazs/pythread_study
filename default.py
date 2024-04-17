@@ -1,11 +1,11 @@
 import logging
-from concurrent.futures import ThreadPoolExecutor
 from random import uniform
 from socket import AF_INET, SHUT_RDWR, SOCK_STREAM, socket
-from threading import Event
+from threading import Event, Thread
 from time import sleep
 
-logger = logging.getLogger("pool_client")
+logger = logging.getLogger("threading_client")
+
 
 
 def work(index: int, event: "Event") -> None:
@@ -27,17 +27,15 @@ def work(index: int, event: "Event") -> None:
     logger.critical("%d CLOSED", index)
 
 
+stop = Event()
 
-with ThreadPoolExecutor(max_workers=2, thread_name_prefix="main_pool") as executor:
-    stop = Event()
-    executor.submit(work, 0, stop)
-    executor.submit(work, 1, stop)
-    executor.submit(work, 2, stop)
-    sleep(3)
+for index in range(3):
+    thread = Thread(target=work, args=(index, stop))
+    thread.start()
+sleep(3)
 
-    logger.critical(">>> setting stop")
-    stop.set()
-    sleep(3)
-
+logger.critical(">>> setting stop")
+stop.set()
+sleep(3)
 
 logger.critical("end")

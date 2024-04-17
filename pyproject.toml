@@ -1,0 +1,23 @@
+[project]
+name = "threading-study"
+version = "0.0.1"
+
+[project.optional-dependencies]
+dev = [
+    "ruff == 0.3.7",
+    "mypy == 1.9.0",
+]
+
+[tool.setuptools]
+packages = []
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D203", "D213"]
+extend-ignore = ["D"]
+
+[tool.mypy]
+strict = true
+show_error_codes = true
+enable_error_code = "ignore-without-code"
+exclude = ["build"]
