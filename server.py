@@ -9,12 +9,12 @@ async def handle(connection: "socket") -> None:
     loop = get_event_loop()
     while True:
         try:
-            await loop.sock_sendall(connection, b"hi")
-        except BrokenPipeError:
-            break
-        try:
             await loop.sock_recv(connection, 1024)
         except ConnectionResetError:
+            break
+        try:
+            await loop.sock_sendall(connection, b"hi")
+        except BrokenPipeError:
             break
 
 

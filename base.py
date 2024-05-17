@@ -11,17 +11,29 @@ if TYPE_CHECKING:
 def work(index: int, event: "Event", logger: "Logger") -> None:
     sleeping_time = round(uniform(1, 2), 2)  # noqa: S311
     client = socket(AF_INET, SOCK_STREAM)
-    # with socket(AF_INET, SOCK_STREAM) as client:
     logger.critical("%d connecting...", index)
     client.connect(("127.0.0.1", 8000))
     logger.critical("%d connected!", index)
+    broken = False
     while not event.is_set():
-        logger.critical("%d waiting for data...", index)
-        client.recv(1024)  # blocking
-        logger.critical("%d received data, now sleeping for %.2f", index, sleeping_time)
-        client.sendall(b"hello")
+        logger.critical("%d sending data...", index)
+        try:
+            client.sendall(b"hello")
+        except BrokenPipeError:
+            broken = True
+            logger.critical("%d ERROR WHILE SENDING", index)
+            break
+        logger.critical("%d receiving data...", index)
+        data = client.recv(1024)  # blocking
+        if data:
+            logger.critical("%d received data %s, now sleeping for %.2f", index, data, sleeping_time)
+        else:
+            broken = True
+            logger.critical("%d ERROR WHILE RECVING", index)
+            break
         sleep(sleeping_time)
-    logger.critical("%d CLOSING", index)
-    client.shutdown(SHUT_RDWR)
+    if not broken:
+        logger.critical("%d CLOSING", index)
+        client.shutdown(SHUT_RDWR)
     client.close()
     logger.critical("%d CLOSED", index)
